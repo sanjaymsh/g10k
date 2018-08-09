@@ -121,12 +121,27 @@ func createOrPurgeDir(dir string, callingFunction string) {
 			Debugf("Trying to create dir: " + dir + " called from " + callingFunction)
 			os.MkdirAll(dir, 0777)
 		} else {
-			Debugf("Trying to remove: " + dir + " called from " + callingFunction)
-			if err := os.RemoveAll(dir); err != nil {
-				log.Print("createOrPurgeDir(): error: removing dir failed", err)
+			Debugf("Trying to remove everything inside " + dir + " called from " + callingFunction)
+			// https://www.dotnetperls.com/os-remove-go
+			// Open the directory and read all its files.
+			dirRead, err := os.Open(dir)
+			if err != nil {
+				Fatalf("createOrPurgeDir(): failing to open dir " + dir + " " + err.Error())
 			}
-			Debugf("Trying to create dir: " + dir + " called from " + callingFunction)
-			os.MkdirAll(dir, 0777)
+			dirFiles, err := dirRead.Readdir(0)
+			if err != nil {
+				Fatalf("createOrPurgeDir(): failing to read dir content " + dir + " " + err.Error())
+			}
+
+			// Loop over the directory's files.
+			for index := range dirFiles {
+				file := dir + dirFiles[index].Name()
+				fmt.Println(file)
+				// Remove the file.
+				if err := os.RemoveAll(file); err != nil {
+					Fatalf("createOrPurgeDir(): failing to delete file '" + file + "' " + err.Error())
+				}
+			}
 		}
 	}
 }
