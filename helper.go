@@ -200,7 +200,7 @@ func executeCommand(command string, timeout int, allowFail bool) ExecResult {
 	if err != nil {
 		errmsg = err.Error()
 	}
-	Debugf("Executing " + command + " gave output: " + string(out) + ", and error: " + errmsg)
+	Debugf("Executing " + command + " gave output: " + strings.TrimSuffix(string(out), "\n") + " and error: " + errmsg)
 
 	er := ExecResult{0, string(out), err}
 	if msg, ok := err.(*exec.ExitError); ok { // there is error code
